@@ -1,0 +1,10 @@
+{
+    "C:\\Program Files (x86)\\Steam\\steam.exe": ["steam", "стим"],
+    "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe": ["chrome", "хром", "google chrome"],
+    "C:\\Users\\71424\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe": ["vscode", "vs code", "visual studio code", "код", "вс код"],
+    "C:\\Windows\\System32\\Taskmgr.exe": ["task manager", "диспетчер задач", "taskmgr"],
+    "C:\\Windows\\System32\\calc.exe": ["calculator", "калькулятор", "calc"],
+    "C:\\Program Files\\Telegram Desktop\\Telegram.exe": ["telegram", "телеграм"],
+    "A:\\Battle.net\\Hearthstone\\Hearthstone.exe": ["хс", "харстоун", "hearthstone"],
+    "C:\\Users\\71424\\OneDrive\\Рабочий стол\\Rocket League.url": ["рокет лига", "rocket league"]
+}
