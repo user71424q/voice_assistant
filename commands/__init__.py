@@ -9,11 +9,15 @@ ALL_COMMANDS: List[Type[Command]] = []
 for module_info in pkgutil.iter_modules([COMMANDS_DIR]):
     if module_info.ispkg:
         continue
-    module = importlib.import_module(f'commands.{module_info.name}')
+    module = importlib.import_module(f"commands.{module_info.name}")
     for attribute_name in dir(module):
         attribute = getattr(module, attribute_name)
         # Проверка, что это класс и он является наследником Command
-        if isclass(attribute) and issubclass(attribute, Command) and attribute is not Command:
+        if (
+            isclass(attribute)
+            and issubclass(attribute, Command)
+            and attribute is not Command
+        ):
             ALL_COMMANDS.append(attribute)
 
 

@@ -1,4 +1,6 @@
 from typing import Pattern
+
+
 class Command:
 
     command_regexp: Pattern[str] = ""

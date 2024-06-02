@@ -1,18 +1,27 @@
 import speech_recognition as sr
 from commands import get_command
-from utils import speak
-def listen() -> str | None:
+from tts_local import speak
+
+def listen():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         audio = recognizer.listen(source, phrase_time_limit=30)
         try:
-            text = recognizer.recognize_google(audio, language='ru-RU')
-            print(f"Вы сказали: {text}")
-            return text
+            # TODO проверка голоса
+            if True:
+                text = recognizer.recognize_google(audio, language="ru-RU")
+                print(f"Вы сказали: {text}")
+                return text
+            else:
+                print("Голос не совпадает.")
+                return None
         except sr.UnknownValueError:
+            print("Не удалось распознать голос.")
             return None
         except sr.RequestError:
+            print("Ошибка сервиса распознавания.")
             return None
+
 
 if __name__ == "__main__":
     speak("Привет, Хозяин")

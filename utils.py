@@ -1,15 +1,7 @@
-from RUTTS import TTS
-from ruaccent import RUAccent
 import json
-# Инициализация движка синтеза речи
-
-tts = TTS("TeraTTS/glados2-g2p-vits", add_time_to_end=0.8)
-accentizer = RUAccent()
-accentizer.load(omograph_model_size='turbo2', use_dictionary=True, workdir='C:\\pet\\voice\\model')
-
-def speak(text: str):
-    text = accentizer.process_all(text)
-    tts(text, play=True, lenght_scale=1.3)
+import librosa
+import numpy as np
+from scipy.spatial.distance import cdist
 
 def load_app_paths():
     with open('config/app_paths.json', 'r', encoding='utf-8') as f:
@@ -22,7 +14,6 @@ def load_app_paths():
     return app_paths
 
 
-
 def load_web_pages():
     with open('config/web_pages.json', 'r', encoding='utf-8') as f:
         pages = json.load(f)
@@ -32,3 +23,26 @@ def load_web_pages():
         for alias in aliases:
             web_pages[alias.lower()] = url
     return web_pages
+
+
+
+def get_mfcc(audio_path):
+    y, sr = librosa.load(audio_path)
+    mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+    mfcc_scaled = np.mean(mfcc.T, axis=0)
+    return mfcc_scaled
+
+def is_voice_match(sample_path, test_audio, threshold=50):
+    # Получаем MFCC для образца
+    sample_mfcc = get_mfcc(sample_path)
+    
+    # Получаем MFCC для тестового аудио
+    with open("temp_audio.wav", "wb") as f:
+        f.write(test_audio.get_wav_data())
+    test_mfcc = get_mfcc("temp_audio.wav")
+    
+    # Сравниваем MFCC с использованием евклидова расстояния
+    distance = cdist([sample_mfcc], [test_mfcc], metric='euclidean')[0][0]
+    print(distance)
+    return distance < threshold
+
