@@ -1,9 +1,12 @@
-import re
 import os
+import re
 import subprocess
+
 from fuzzywuzzy import process
-from .command_base import Command
+
 from utils import load_app_paths
+
+from .command_base import Command
 
 
 class CloseApplicationCommand(Command):

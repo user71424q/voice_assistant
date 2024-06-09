@@ -1,13 +1,15 @@
 import speech_recognition as sr
+
 from commands import get_command
-from tts_local import speak
+from tts.tts_sber import speak
+
 
 def listen():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         audio = recognizer.listen(source, phrase_time_limit=30)
         try:
-            # TODO проверка голоса
+            # Проверка голоса
             if True:
                 text = recognizer.recognize_google(audio, language="ru-RU")
                 print(f"Вы сказали: {text}")
@@ -24,7 +26,7 @@ def listen():
 
 
 if __name__ == "__main__":
-    speak("Привет, Хозяин")
+    speak("Привет Хозяин")
     while True:
         try:
             command_text = listen()

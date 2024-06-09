@@ -8,4 +8,9 @@ ruaccent==1.5.6.5
 RUTTS==0.1.13
 RUTTS==0.1.13
 scipy==1.13.1
+sounddevice==0.4.7
 SpeechRecognition==3.10.4
+torch==2.3.0
+urllib3==2.2.1
+PyAudio==0.2.14
+python-Levenshtein==0.25.1

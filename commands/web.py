@@ -1,11 +1,14 @@
-import re
 import json
+import re
 import webbrowser
+
 import requests
 from bs4 import BeautifulSoup
 from fuzzywuzzy import process
-from .command_base import Command
+
 from utils import load_web_pages
+
+from .command_base import Command
 
 
 class OpenWebPageCommand(Command):

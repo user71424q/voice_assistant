@@ -1,6 +1,7 @@
-import subprocess
-from .command_base import Command
 import re
+import subprocess
+
+from .command_base import Command
 
 
 class SleepPCCommand(Command):

@@ -1,7 +1,11 @@
 import json
-import re, random, string
+import random
+import re
+import string
+
 import pyperclip
 from fuzzywuzzy import process
+
 from .command_base import Command
 
 

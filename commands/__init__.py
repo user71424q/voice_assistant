@@ -1,7 +1,10 @@
-from .command_base import Command
-import os, importlib, pkgutil
+import importlib
+import os
+import pkgutil
 from inspect import isclass
-from typing import List, Type, Optional
+from typing import List, Optional, Type
+
+from .command_base import Command
 
 COMMANDS_DIR = os.path.dirname(__file__)
 ALL_COMMANDS: List[Type[Command]] = []

@@ -1,8 +1,12 @@
+import subprocess
 import os
-from fuzzywuzzy import process
-from .command_base import Command
-from utils import load_app_paths
 import re
+
+from fuzzywuzzy import process
+
+from utils import load_app_paths
+
+from .command_base import Command
 
 
 class LaunchApplicationCommand(Command):
@@ -19,7 +23,8 @@ class LaunchApplicationCommand(Command):
 
         if score > 80:  # Порог совпадения для аргументов
             app_path = app_paths[best_match]
-            os.startfile(app_path)
+            work_dir = os.path.dirname(app_path)
+            subprocess.Popen([app_path], cwd=work_dir)
             return f"Запускаю {best_match}"
         else:
             return f"Приложение '{app_name_fragment}' не найдено"
