@@ -17,16 +17,5 @@ def load_app_paths():
     return app_paths
 
 
-def load_web_pages():
-    with open("config/web_pages.json", "r", encoding="utf-8") as f:
-        pages = json.load(f)
-    # Преобразуем конфигурацию в удобный для поиска формат
-    web_pages = {}
-    for url, aliases in pages.items():
-        for alias in aliases:
-            web_pages[alias.lower()] = url
-    return web_pages
-
-
 def is_voice_match(audio_data: bytes, sample_path: str, threshold: float = 100) -> bool:
     pass
