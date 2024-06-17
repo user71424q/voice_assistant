@@ -1,15 +1,25 @@
-import re
 import subprocess
-
 from .command_base import Command
 
-
 class SleepPCCommand(Command):
-    command_regexp = re.compile(
-        r"(пк|компьютер|комп) (в спящий|в сон|спать|в спячку)", re.IGNORECASE
-    )
+    command_description: dict = {
+        "type": "function",
+        "function": {
+            "name": "SleepPCCommand",
+            "description": "Переводит компьютер в спящий режим. Пользователь может сказать, например, 'переведи компьютер в спящий режим'.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+            },
+            "returns": {
+                "type": ["string", "null"],
+                "description": "Сообщение об успешном переводе компьютера в спящий режим или о неудаче.",
+            },
+        },
+    }
 
-    def execute(self) -> None | str:
+    @classmethod
+    def execute(cls) -> None | str:
         try:
             subprocess.run(
                 [

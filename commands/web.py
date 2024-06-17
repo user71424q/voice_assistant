@@ -6,54 +6,90 @@ import requests
 from bs4 import BeautifulSoup
 from fuzzywuzzy import process
 
-from utils import load_web_pages
-
 from .command_base import Command
 
 
 class OpenWebPageCommand(Command):
-    command_regexp = re.compile(r"(открой)\s+(.+)", re.IGNORECASE)
+    command_description: dict = {
+        "type": "function",
+        "function": {
+            "name": "OpenWebPageCommand",
+            "description": "Открывает веб-страницу по указанному URL. Пользователь может сказать, например, 'открой YouTube', и команда откроет соответствующую страницу.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Полный URL веб-страницы, которую нужно открыть.",
+                    }
+                },
+                "required": ["text"],
+            },
+            "returns": {
+                "type": ["string", "null"],
+                "description": "Сообщение об успешном открытии веб-страницы или о неудаче.",
+            },
+        },
+    }
 
-    def execute(self) -> None | str:
-        match = self.command_regexp.search(self.text)
-
-        page_name = match.group(2).strip().lower()
-        web_pages = load_web_pages()
-
-        best_match = None
-        best_score = 0
-
-        # Ищем наилучшее совпадение для веб-страницы
-        for alias, url in web_pages.items():
-            match, score = process.extractOne(page_name, [alias])
-            if score > best_score:
-                best_score = score
-                best_match = url
-
-        if best_match and best_score > 80:
-            webbrowser.open_new_tab(best_match)
-        else:
-            return f"Веб-страница {page_name} не найдена"
+    @classmethod
+    def execute(cls, text: str) -> None:
+        webbrowser.open_new_tab(text)
 
 
 class GoogleSearchCommand(Command):
-    command_regexp = re.compile(r"(загугли)\s+(.+)", re.IGNORECASE)
+    command_description: dict = {
+        "type": "function",
+        "function": {
+            "name": "GoogleSearchCommand",
+            "description": "Открывает поисковую страницу Google с указанным запросом. Пользователь может сказать, например, 'поиск в гугле котики', и команда сформирует и откроет ссылку для поиска в Google по запросу 'котики'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Поисковый запрос для google",
+                    }
+                },
+                "required": ["text"],
+            },
+            "returns": {"type": "null", "description": "Нет возвращаемого значения."},
+        },
+    }
 
-    def execute(self) -> None:
-        match = self.command_regexp.search(self.text)
-
-        query = match.group(2).strip().lower()
-        url = f"https://www.google.com/search?q={query}"
+    @classmethod
+    def execute(cls, text: str) -> None:
+        url = f"https://www.google.com/search?q={text}"
         webbrowser.open_new_tab(url)
 
 
 class YouTubePlayCommand(Command):
-    command_regexp = re.compile(r"(включи музыку|музончик)\s+(.+)", re.IGNORECASE)
+    command_description: dict = {
+        "type": "function",
+        "function": {
+            "name": "YouTubePlayCommand",
+            "description": "Выполняет поиск видео на YouTube по указанному запросу и открывает первое найденное видео. Пользователь может сказать, например, 'включи музыку', 'включи музончик', 'включи что-то на YouTube', и далее указать, что именно, например, 'hollywood undead city', и команда выполнит поиск и воспроизведение.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Запрос для поиска видео на YouTube.",
+                    }
+                },
+                "required": ["text"],
+            },
+            "returns": {
+                "type": ["string", "null"],
+                "description": "Сообщение о результате операции или None в случае успеха.",
+            },
+        },
+    }
 
-    def execute(self) -> None | str:
-        match = self.command_regexp.search(self.text)
+    @classmethod
+    def execute(cls, text: str) -> None | str:
 
-        search_query = match.group(2).strip().lower()
+        search_query = text
 
         search_url = f"https://www.youtube.com/results?search_query={search_query}"
 

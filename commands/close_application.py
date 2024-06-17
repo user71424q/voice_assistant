@@ -10,14 +10,32 @@ from .command_base import Command
 
 
 class CloseApplicationCommand(Command):
-    command_regexp = re.compile(r"(закрой)\s+(.+)", re.IGNORECASE)
+    command_description: dict = {
+        "type": "function",
+        "function": {
+            "name": "CloseApplicationCommand",
+            "description": "Закрывает приложение по указанному имени. Пользователь может сказать, например, 'закрой браузер', и команда найдет и закроет приложение.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Имя приложения, которое нужно закрыть.",
+                    }
+                },
+                "required": ["text"],
+            },
+            "returns": {
+                "type": "string",
+                "description": "Сообщение об успешном закрытии приложения, неудачной попытке или о том, что приложение не найдено.",
+            },
+        },
+    }
 
-    def execute(self) -> str:
-        match = self.command_regexp.search(self.text)
-        if not match:
-            return "Команда не распознана"
+    @classmethod
+    def execute(cls, text) -> str:
 
-        app_name = match.group(2).strip().lower()
+        app_name = text
         app_paths = load_app_paths()
 
         best_match = None
