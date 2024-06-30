@@ -2,11 +2,12 @@ import os
 import re
 import subprocess
 
+import psutil
 from fuzzywuzzy import process
+from transliterate import translit
 
+from commands.command_base import Command
 from utils import load_app_paths
-
-from .command_base import Command
 
 
 class CloseApplicationCommand(Command):
@@ -18,41 +19,46 @@ class CloseApplicationCommand(Command):
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "text": {
+                    "app_name": {
                         "type": "string",
                         "description": "Имя приложения, которое нужно закрыть.",
                     }
                 },
-                "required": ["text"],
-            },
-            "returns": {
-                "type": "string",
-                "description": "Сообщение об успешном закрытии приложения, неудачной попытке или о том, что приложение не найдено.",
+                "required": ["app_name"],
             },
         },
     }
 
     @classmethod
-    def execute(cls, text) -> str:
+    def execute(cls, app_name: str) -> str:
+        """
+        Закрывает программу на компьютере по её названию.
 
-        app_name = text
-        app_paths = load_app_paths()
+        Args:
+            app_name (str): Название программы, которую необходимо закрыть.
 
-        best_match = None
-        best_score = 0
+        Returns:
+            str: Сообщение о результате выполнения.
+        """
+        # Получаем список всех активных процессов
+        all_processes = {p.info['name']: p.info['name'] for p in psutil.process_iter(['name'])}
 
-        # Найти наилучшее совпадение для имени приложения
-        for alias, path in app_paths.items():
-            match, score = process.extractOne(app_name, [alias])
-            if score > best_score:
-                best_score = score
-                best_match = path
+        # Добавляем транслитерацию для обработки русских названий
+        transliterated_name = translit(app_name, 'ru', reversed=True)
 
-        if best_match and best_score > 80:  # Порог совпадения для аргументов
+        # Нечеткий поиск наилучшего совпадения по оригинальному и транслитерированному имени
+        candidates = list(all_processes.keys())
+        best_match, best_score = process.extractOne(app_name, candidates)
+        trans_best_match, trans_best_score = process.extractOne(transliterated_name, candidates)
+
+        # Выбираем лучшее совпадение из обоих вариантов
+        if trans_best_score > best_score:
+            best_match, best_score = trans_best_match, trans_best_score
+
+        if best_match and best_score > 90:  # Порог совпадения для аргументов
             try:
-                # Закрываем процесс
-                app_name_to_kill = os.path.basename(best_match)
-                subprocess.run(["taskkill", "/f", "/im", app_name_to_kill], check=True)
+                # Закрываем все процессы с найденным именем
+                subprocess.run(["taskkill", "/f", "/im", best_match], check=True)
                 return "Закрываю"
             except subprocess.CalledProcessError:
                 return "Не удалось закрыть"
