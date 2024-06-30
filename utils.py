@@ -1,9 +1,4 @@
-import io
 import json
-
-import librosa
-import numpy as np
-from scipy.spatial.distance import euclidean
 
 
 def load_app_paths():
