@@ -2,5 +2,5 @@ class Command:
     command_description: dict = {}
 
     @classmethod
-    def execute(cls, text: str) -> None | str:
+    def execute(cls) -> None | str:
         raise NotImplementedError("Команда должна реализовывать метод execute()")

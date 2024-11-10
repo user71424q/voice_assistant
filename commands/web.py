@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from fuzzywuzzy import process
 
-from .command_base import Command
+from commands.command_base import Command
 
 
 class OpenWebPageCommand(Command):
@@ -24,10 +24,6 @@ class OpenWebPageCommand(Command):
                     }
                 },
                 "required": ["text"],
-            },
-            "returns": {
-                "type": ["string", "null"],
-                "description": "Сообщение об успешном открытии веб-страницы или о неудаче.",
             },
         },
     }
@@ -53,7 +49,6 @@ class GoogleSearchCommand(Command):
                 },
                 "required": ["text"],
             },
-            "returns": {"type": "null", "description": "Нет возвращаемого значения."},
         },
     }
 
@@ -78,10 +73,6 @@ class YouTubePlayCommand(Command):
                     }
                 },
                 "required": ["text"],
-            },
-            "returns": {
-                "type": ["string", "null"],
-                "description": "Сообщение о результате операции или None в случае успеха.",
             },
         },
     }

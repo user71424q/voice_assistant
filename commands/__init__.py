@@ -6,12 +6,13 @@ import re
 from inspect import isclass
 from typing import Optional, Type
 
+import httpx
 from openai import AsyncOpenAI
 
-from .command_base import Command
+from commands.command_base import Command
 
 COMMANDS_DIR = os.path.dirname(__file__)
-TOOLS: list[Type[Command]] = []
+TOOLS: list = []
 FUNCTIONS: dict = {}
 # Динамическое сканирование папки и импорт модулей
 for module_info in pkgutil.iter_modules([COMMANDS_DIR]):
@@ -41,35 +42,54 @@ system_message = [
         "role": "system",
         "content": (
             "Ты являешься голосовым ассистентом и отвечаешь строго в формате JSON. "
-            "Твоя задача - качественно определять намерения пользователя и предоставлять соответствующие вызовы команд в ответ. Так же ты поддерживаешь обычный разговор с пользователем"
-            "В случае если ты решаешь дать свой собственный ответ ты обязательно вызываешь команду SaySentence и передаешь в нее свой ответ вместо обычного текстового ответа"
+            "Твоя задача - качественно определять намерения пользователя и предоставлять соответствующие вызовы команд в ответ. "
+            "Так же ты поддерживаешь обычный разговор с пользователем. "
+            "В случае если ты решаешь дать свой собственный ответ ты обязательно вызываешь SaySentenceCommand и передаешь в нее свой ответ."
         ),
     }
 ]
 
 
 async def execute_command(text: str) -> Optional[str]:
-    client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-    try:
-        response = await client.chat.completions.create(
-            model="gpt-3.5-turbo-1106",
-            messages=system_message + [{"role": "user", "content": text}],
-            tools=TOOLS,
-            tool_choice="auto",  # auto является значением по умолчанию, но мы укажем его явно
-        )
-        response_message = response.choices[0].message
-        print(response_message)
-        tool_calls = response_message.tool_calls
-        res = None
-        if tool_calls:
-            for tool_call in tool_calls:
-                function_name = tool_call.function.name
-                function_to_call = FUNCTIONS[function_name]
-                function_args = json.loads(tool_call.function.arguments)
-                function_response = function_to_call(**function_args)
-                if function_response:
-                    res = function_response
-        return res
-    except Exception as e:
-        print(f"Ошибка при выполнении команды: {e}")
-        return None
+    """Отправляет запрос в gpt для определения вызова команды, затем выполняет вызов нужной команды
+
+    Args:
+        text (str): текст команды
+
+    Returns:
+        Optional[str]: результат выполнения команды
+    """
+    client = AsyncOpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY")
+    )
+    messages = system_message + [{"role": "user", "content": text}]
+    while True:
+        try:
+            response = await client.chat.completions.create(
+                model="ft:gpt-4o-mini-2024-07-18:personal::A1tzSTN0",
+                messages=messages,
+                tools=TOOLS,
+                tool_choice="required",  # как минимум 1 функция вызывается
+            )
+            response_message = response.choices[0].message
+            print(response_message)
+            tool_calls = response_message.tool_calls
+            
+            if tool_calls:
+                for tool_call in tool_calls:
+                    function_name = tool_call.function.name
+                    function_to_call = FUNCTIONS[function_name]
+                    function_args = json.loads(tool_call.function.arguments)
+                    function_response = function_to_call(**function_args)
+                    if not "Command" in function_name:
+                        messages.append(response_message)
+                        messages.append({ "role": "tool", 
+                                            "content": json.dumps({"result": function_response}, ensure_ascii=False),
+                                            "tool_call_id": tool_call.id
+                                            }
+                                        )
+                    else:
+                        return function_response
+        except Exception as e:
+            print(f"Ошибка при выполнении команды: {e}")
+            return None

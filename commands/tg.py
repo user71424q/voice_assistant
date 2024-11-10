@@ -1,9 +1,11 @@
-import os
 import asyncio
-from telethon.sync import TelegramClient
-from dotenv import load_dotenv
-from .command_base import Command
+import os
+
 import nest_asyncio
+from dotenv import load_dotenv
+from telethon.sync import TelegramClient
+
+from commands.command_base import Command
 
 nest_asyncio.apply()
 
@@ -11,12 +13,13 @@ nest_asyncio.apply()
 load_dotenv(dotenv_path="config/.env")
 
 users = {
-        "алина": "id63638",
-        "алине": "id63638",
-        "арине": "id63638",
-        "арина": "id63638",
-        # Добавьте другие соответствия имени и chat id здесь
-    }
+    "алина": "id63638",
+    "алине": "id63638",
+    "арине": "id63638",
+    "арина": "id63638",
+    # Добавьте другие соответствия имени и chat id здесь
+}
+
 
 class MessageToTelegramCommand(Command):
 
@@ -46,10 +49,16 @@ class MessageToTelegramCommand(Command):
         },
     }
 
-
     @staticmethod
     async def send_message_async(api_id, api_hash, text, recipient):
-        async with TelegramClient('config/bot', api_id, api_hash, device_model="desktop app", app_version="5.1.5", system_version="windows 12") as client:
+        async with TelegramClient(
+            "config/bot",
+            api_id,
+            api_hash,
+            device_model="desktop app",
+            app_version="5.1.5",
+            system_version="windows 12",
+        ) as client:
             if recipient.lower() in users:
                 user_id = users[recipient.lower()]
                 await client.send_message(user_id, text)
@@ -61,18 +70,18 @@ class MessageToTelegramCommand(Command):
     def execute(cls, text: str, recipient: str) -> None | str:
         api_id = int(os.getenv("TELEGRAM_API_ID"))
         api_hash = os.getenv("TELEGRAM_API_HASH")
-        #phone = os.getenv("TELEGRAM_PHONE")
-        #password = os.getenv("TELEGRAM_PASSWORD")
-            
+        # phone = os.getenv("TELEGRAM_PHONE")
+        # password = os.getenv("TELEGRAM_PASSWORD")
 
         loop = asyncio.get_event_loop()
-        result = loop.run_until_complete(cls.send_message_async(api_id, api_hash, text, recipient))
-        
+        result = loop.run_until_complete(
+            cls.send_message_async(api_id, api_hash, text, recipient)
+        )
+
         return result
 
 
 class GetRecentTelegramMessages(Command):
-    
 
     command_description: dict = {
         "type": "function",
@@ -89,16 +98,19 @@ class GetRecentTelegramMessages(Command):
                 },
                 "required": ["recipient"],
             },
-            "returns": {
-                "type": ["string", "null"],
-                "description": "Последние сообщения от указанного пользователя или сообщение о неудаче.",
-            },
         },
     }
 
     @staticmethod
-    async def get_messages_async(api_id, api_hash, recipient, limit = 5):
-        async with TelegramClient('config/bot', api_id, api_hash, device_model="desktop app", app_version="5.1.5", system_version="windows 12") as client:
+    async def get_messages_async(api_id, api_hash, recipient, limit=5):
+        async with TelegramClient(
+            "config/bot",
+            api_id,
+            api_hash,
+            device_model="desktop app",
+            app_version="5.1.5",
+            system_version="windows 12",
+        ) as client:
             if recipient.lower() in users:
                 username = users[recipient.lower()]
                 user = await client.get_entity(username)
@@ -115,6 +127,8 @@ class GetRecentTelegramMessages(Command):
         # password = os.getenv("TELEGRAM_PASSWORD")
 
         loop = asyncio.get_event_loop()
-        result = loop.run_until_complete(cls.get_messages_async(api_id, api_hash, recipient))
+        result = loop.run_until_complete(
+            cls.get_messages_async(api_id, api_hash, recipient)
+        )
 
         return result

@@ -6,7 +6,7 @@ from fuzzywuzzy import process
 
 from utils import load_app_paths
 
-from .command_base import Command
+from commands.command_base import Command
 
 
 class LaunchApplicationCommand(Command):
@@ -24,10 +24,6 @@ class LaunchApplicationCommand(Command):
                     }
                 },
                 "required": ["text"],
-            },
-            "returns": {
-                "type": "string",
-                "description": "Сообщение об успешном запуске приложения или о том, что приложение не найдено.",
             },
         },
     }

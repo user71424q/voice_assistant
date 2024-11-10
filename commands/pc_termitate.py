@@ -1,5 +1,7 @@
 import subprocess
-from .command_base import Command
+
+from commands.command_base import Command
+
 
 class SleepPCCommand(Command):
     command_description: dict = {
@@ -10,10 +12,6 @@ class SleepPCCommand(Command):
             "parameters": {
                 "type": "object",
                 "properties": {},
-            },
-            "returns": {
-                "type": ["string", "null"],
-                "description": "Сообщение об успешном переводе компьютера в спящий режим или о неудаче.",
             },
         },
     }

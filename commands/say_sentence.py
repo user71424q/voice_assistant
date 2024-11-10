@@ -1,6 +1,6 @@
 import re
 
-from .command_base import Command
+from commands.command_base import Command
 
 
 class SaySentenceCommand(Command):
@@ -19,7 +19,6 @@ class SaySentenceCommand(Command):
                 },
                 "required": ["text"],
             },
-            "returns": {"type": "string", "description": "Та же самая строка"},
         },
     }
 

@@ -4,9 +4,11 @@ from time import sleep
 import queue
 import json
 import io
-import vosk
 import sounddevice as sd
 import speech_recognition as sr
+import numpy as np
+import whisper
+import vosk
 from dotenv import load_dotenv
 
 from commands import execute_command
@@ -45,13 +47,14 @@ class SpeechRecognizer:
             data = self.q.get()
             audio_buffer.write(data)
             if self.vosk_recognizer.AcceptWaveform(data):
-                if self.vosk_recognizer.Result():
+                if self.extract_command(self.vosk_recognizer.Result()):
                     audio_buffer.seek(0)  # Rewind to the beginning of the buffer
                     audio_data = sr.AudioData(audio_buffer.read(), sample_rate=16000, sample_width=2)
-                    audio_buffer.seek(0)
-                    audio_buffer.truncate(0)  # Clear the buffer for next audio
-
+                
                     self.executor.submit(self.recognize_and_process, audio_data)
+                    
+                audio_buffer.seek(0)
+                audio_buffer.truncate(0)  # Clear the buffer for next audio
 
     def recognize_and_process(self, audio):
         try:
